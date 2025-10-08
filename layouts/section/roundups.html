@@ -1,0 +1,18 @@
+{{ define "main" }}
+  <section class="content">
+    <h1>Choose Your Category</h1>
+    {{ with .Content }}{{ . }}{{ end }}
+
+    <div class="roundups-grid">
+      {{ range .RegularPagesRecursive.ByTitle }}
+        <a class="roundups-card" href="{{ .RelPermalink }}">
+          <h3>{{ with .Params.display_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h3>
+          <div class="meta">
+            {{ with .Params.category }}<span class="tag">{{ . }}</span>{{ end }}
+            {{ with .Params.niche }}<span class="tag">{{ . }}</span>{{ end }}
+          </div>
+        </a>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

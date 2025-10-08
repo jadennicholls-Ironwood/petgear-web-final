@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- Title -->
+    <title>{{ with .Title }}{{ . }} — {{ end }}{{ .Site.Title }}</title>
+
+    <!-- SEO Meta -->
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+    <link rel="canonical" href="{{ .Permalink }}">
+    <meta name="robots" content="index,follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="{{ .Title }}">
+    <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ .Permalink }}">
+    <meta property="og:site_name" content="{{ .Site.Title }}">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ .Title }}">
+    <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+
+    <!-- Custom CSS -->
+    {{ $custom := resources.Get "css/custom.css" | resources.Minify | resources.Fingerprint }}
+    <link rel="stylesheet" href="{{ $custom.RelPermalink }}">
+
+    <!-- Hook for page-specific head content -->
+    {{ block "head" . }}{{ end }}
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="brand-block">
+        <a class="brand" href="/">{{ .Site.Title }}</a>
+        {{ with .Site.Params.tagline }}<div class="brand-tagline">{{ . }}</div>{{ end }}
+      </div>
+    <nav class="site-nav">
+  <a class="btn btn-ghost" href='{{ "/roundups/"  | relURL }}'>Explore Products</a>
+  <a class="btn btn-ghost" href='{{ "/about-us/" | relURL }}'>About</a>
+</nav>
+
+
+
+    </header>
+
+    <!-- Page content -->
+    <main class="paper">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="inner" style="max-width:1200px;margin:0 auto;">
+        © {{ .Site.Title }} {{ now.Format "2006" }}
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+﻿menu:
+  main:
+    - identifier: about
+      name: About
+      url: /about-us/
+      weight: 90

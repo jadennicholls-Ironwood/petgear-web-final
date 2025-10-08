@@ -1,0 +1,14 @@
+title = "Pet Gear Essentials"
+baseURL = "https://www.petgearessentials.com/"
+languageCode = "en-us"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+
+[menus]
+  [[menus.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about-us/"
+    weight = 90

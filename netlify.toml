@@ -1,0 +1,9 @@
+[build]
+  command = "hugo --gc --minify"
+  publish = "public"
+
+[build.environment]
+  HUGO_VERSION = "0.150.0"
+  HUGO_ENV = "production"
+  # Optional: override baseURL from the Netlify UI if you prefer:
+  # HUGO_BASEURL = "https://kitchenvistapro.com/"

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Minimal safe head: no theme partials required -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{ with .Title }}{{ . }} — {{ end }}{{ .Site.Title }}</title>
+    {{ with .Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+
+    {{/* Load custom.css from assets/css/custom.css if present */}}
+    {{ $custom := resources.Get "css/custom.css" | resources.Minify | resources.Fingerprint }}
+    {{ if $custom }}
+      <link rel="stylesheet" href="{{ $custom.RelPermalink }}">
+    {{ end }}
+  </head>
+  <body>
+
+    <!-- Simple fallback header (remove later if you add a partial) -->
+    <header class="site-header">
+      <div class="inner" style="max-width:1200px;margin:0 auto;padding:12px 16px;">
+        <a href="{{ "/" | relURL }}" style="text-decoration:none;font-weight:700;">
+          {{ .Site.Title }}
+        </a>
+      </div>
+    </header>
+
+    <main class="paper">
+      {{ block "main" . }}{{ .Content }}{{ end }}
+    </main>
+
+    <!-- Simple fallback footer -->
+    <footer class="site-footer" style="margin-top:32px;padding:16px;">
+      <div class="inner" style="max-width:1200px;margin:0 auto;">
+        © {{ .Site.Title }} {{ now.Format "2006" }}
+      </div>
+    </footer>
+
+  </body>
+</html>

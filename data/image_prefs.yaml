@@ -1,0 +1,5 @@
+include_animals: auto     # auto | yes | no
+animal: ""                # leave blank; per-row or inference will decide
+people: auto              # auto | yes | no (auto = hands only if natural)
+style_default: lifestyle-soft
+

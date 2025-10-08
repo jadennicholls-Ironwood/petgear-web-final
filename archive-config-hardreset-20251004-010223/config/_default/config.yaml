@@ -1,0 +1,7 @@
+﻿title: "Kitchen Vista Pro"
+baseURL: "/"
+languageCode: "en-us"
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

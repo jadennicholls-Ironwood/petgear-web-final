@@ -1,0 +1,6 @@
+{{ define "main" }}
+  <article class="content">
+    <h1>{{ with .Params.display_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}</h1>
+    {{ .Content }}
+  </article>
+{{ end }}

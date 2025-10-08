@@ -1,0 +1,30 @@
+﻿# --- Hugo site config ---
+baseURL = "https://kitchenvistapro.com/"   # Netlify can override with HUGO_BASEURL
+languageCode = "en-us"
+title = "Kitchen Vista Pro"
+[pagination]
+  pagerSize = 10
+
+enableRobotsTXT = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 90
+  [[menu.main]]
+  identifier = "about"
+  name = "About"
+  url = "/about-us/"
+  weight = 90
+
+[menu]
+  [[menu.main]]
+  identifier = "about"
+  name = "About"
+  url = "/about-us/"
+  weight = 90

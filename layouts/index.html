@@ -1,0 +1,12 @@
+{{ define "main" }}
+  <main class="paper">
+    <h1>{{ .Site.Title }}</h1>
+
+    {{ with .Content }}{{ . }}{{ end }}
+
+    <h2>Explore Categories</h2>
+    <ul class="home-links">
+      <li><a class="btn" href="/roundups/">Roundups</a></li>
+    </ul>
+  </main>
+{{ end }}

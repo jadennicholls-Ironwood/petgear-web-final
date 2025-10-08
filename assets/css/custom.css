@@ -1,0 +1,160 @@
+/* =======================
+   Smart Gear Advisor — Base Styles
+   ======================= */
+
+/* Tokens */
+:root{
+  --bg:#e9f0f6;         /* page background */
+  --paper:#f6f9fc;      /* card/paper background */
+  --ink:#0f172a;        /* body text */
+  --muted:#475569;      /* secondary text */
+  --accent:#2563eb;     /* blue */
+  --accent2:#14b8a6;    /* teal */
+  --radius:16px;
+  --shadow:0 10px 30px rgba(15,23,42,.08);
+  --maxw:980px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg); color:var(--ink); font-family:system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; line-height:1.6}
+
+/* Links & buttons */
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:12px 20px; border-radius:9999px; font-weight:800;
+  background:#e8f0ff; border:1px solid rgba(0,0,0,.06); color:#0b1a3a; text-decoration:none;
+}
+.btn:hover{filter:brightness(0.98)}
+.btn--ghost{
+  background:transparent; border:1px solid rgba(255,255,255,.25); color:#e2e8f0;
+}
+
+/* Paper container */
+.paper{
+  max-width:var(--maxw);
+  margin:24px auto;
+  background:linear-gradient(180deg,var(--paper),#f2f7fb);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:clamp(18px,3vw,36px);
+}
+.paper .content{text-align:center}
+.paper p{margin-left:auto;margin-right:auto;max-width:70ch}
+
+/* Bigger page H1 inside content */
+.paper h1{
+  font-size:clamp(2.2rem, 3.5vw, 3rem);
+  line-height:1.1; font-weight:900; letter-spacing:-0.02em;
+  margin:0 0 .5rem 0;
+}
+
+/* =======================
+   Header — Solid Dark Bar
+   ======================= */
+.site-header{
+  position:sticky; top:0; z-index:50;
+  background:#0f172a; /* solid dark */
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:18px 24px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.brand-block{display:flex;flex-direction:column;gap:4px}
+.site-header .brand{
+  color:#fff; text-decoration:none;
+  font-size:clamp(1.6rem, 2.5vw, 2.4rem);
+  font-weight:800; letter-spacing:-0.02em; line-height:1;
+}
+.brand-tagline{color:#cbd5e1; font-size:.95rem}
+.site-nav .btn--ghost:hover{background:rgba(255,255,255,.08)}
+@media (max-width:480px){
+  .brand-tagline{display:none}
+  .site-header{padding:14px 16px}
+}
+
+/* =======================
+   Tables (generic + compare)
+   ======================= */
+
+/* Style any table in main content */
+.paper table{
+  border-collapse:separate !important;
+  border-spacing:0 !important;
+  width:100% !important;
+  background:#fff !important;
+  border:1px solid #dfe8f2 !important;
+  border-radius:12px !important;
+  overflow:hidden !important;
+  box-shadow:var(--shadow) !important;
+}
+.paper table thead th{
+  background:#eff5ff !important;
+  font-weight:700 !important;
+  padding:14px 16px !important;
+  text-align:left !important;
+  border-bottom:1px solid #dfe8f2 !important;
+}
+.paper table tbody td{
+  padding:14px 16px !important;
+  vertical-align:top !important;
+  border-top:1px solid #eef3f8 !important;
+  border-right:1px solid #eef3f8 !important;
+}
+.paper table tbody td:last-child{border-right:0 !important}
+.paper table tbody tr:nth-child(even) td{background:#fbfdff !important}
+
+/* Optional class if you apply .compare to some tables */
+.compare{border:1px solid #dfe8f2;}
+
+/* =======================
+   Roundups grid (cards)
+   ======================= */
+.roundups-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+  margin:20px auto;
+}
+.roundups-card{
+  display:block; padding:16px;
+  border:1px solid #dfe8f2; border-radius:12px; background:#fff;
+  box-shadow:0 8px 18px rgba(15,23,42,.05);
+  color:inherit; text-decoration:none;
+  transition:transform .08s ease, box-shadow .2s ease;
+}
+.roundups-card:hover{transform:translateY(-2px); box-shadow:0 12px 32px rgba(15,23,42,.08)}
+.roundups-card h3{margin:0 0 8px 0; font-size:1.06rem}
+.roundups-card p{margin:0; color:#64748b}
+
+/* =======================
+   Footer
+   ======================= */
+.site-footer{padding:24px 0; color:#64748b}
+.site-footer .inner{font-size:.95rem; text-align:center}
+
+/* =======================
+   Responsive tweaks
+   ======================= */
+@media (max-width:720px){
+  .paper{max-width:100%; padding:16px}
+  .paper table{display:block; overflow-x:auto}
+}
+/* Left-align body copy for readability */
+.paper p, .paper ul, .paper li { text-align: left; }
+
+/* Keep headings centered */
+.paper h1, .paper h2, .paper h3 { text-align: center; }
+
+/* Center CTA paragraphs that contain a .btn */
+.paper p:has(> a.btn) { text-align: center; }  /* modern browsers */
+/* Breadcrumbs styling */
+.breadcrumbs {
+  font-size: .9rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+.breadcrumbs a { color: var(--accent); text-decoration: none; }
+.breadcrumbs a:hover { text-decoration: underline; }
