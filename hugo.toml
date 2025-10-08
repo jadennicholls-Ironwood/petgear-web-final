@@ -1,5 +1,5 @@
-title = "Pet Gear Essentials"
-baseURL = "https://www.petgearessentials.com/"
+﻿title = "Pet Gear Essentials"
+baseURL = "https://petgearessentials.com/"
 languageCode = "en-us"
 
 [markup]
