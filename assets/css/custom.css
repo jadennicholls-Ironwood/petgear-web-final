@@ -232,7 +232,7 @@ body.home::before{
   /* light overlay + image in one layer keeps text readable without blur */
   background:
     linear-gradient(rgba(255,255,255,.58), rgba(255,255,255,.72)),
-    url("/img/home-bg.webp") center 38% / cover no-repeat;
+    url("/img/home-bg-v2.webp") center 38% / cover no-repeat;
   filter: saturate(108%);
   opacity:.24;                      /* subtle but visible */
 }
@@ -245,7 +245,7 @@ body.home::before{
   position:fixed;
   inset:0;
   z-index:-1;
-  background-image:url("/img/home-bg.webp");
+  background-image:url("/img/home-bg-v2.webp");
   background-position:center 38%;
   background-size:cover;
   background-repeat:no-repeat;
