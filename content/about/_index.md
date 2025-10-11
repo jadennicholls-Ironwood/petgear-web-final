@@ -1,23 +1,55 @@
 ---
-title: About
+title: "About Pet Gear Essentials"
+description: "How Pet Gear Essentials helps you choose reliable, well-fitting pet gear faster—without hype or price chasing."
 ---
 
-<h1>About Pet Gear Essentials</h1>
-<p>Pet Gear Essentials helps pet owners choose gear with confidence. We turn specs into practical takeaways&mdash;ease of use, reliability, fit, and cleanup&mdash;so you spend less time researching and more time with your pets.</p>
+<p><strong>Over half of U.S. households live with at least one pet,</strong> and the market for pet related gear grows every year. New carriers, bowls, enclosures, filters, and training tools arrive constantly. Sorting through look alike products is hard, and price or star ratings rarely tell the full story. Pet Gear Essentials exists to make those choices simpler, clearer, and faster so that you can provide your pets with what they need, when they need it.</p>
 
 <h2>What We Do</h2>
+<p>Pet Gear Essentials helps you choose reliable pet gear without guesswork. We turn crowded product shelves into clear categories, then compare options using the same practical criteria every time, such as fit, comfort, durability, and ease of cleaning. Each roundup gives you the big picture, and each review answers whether a specific item will work in everyday use. Read the next section to see exactly how we evaluate products and what to check before you buy.</p>
+<br>
 <ul>
-  <li><strong>Roundups:</strong> category pages that explain what matters and where the trade-offs live.</li>
-  <li><strong>Reviews:</strong> focused walkthroughs that answer “Will this fit how I actually use it?”</li>
-  <li><strong>Buyer’s Guides:</strong> plain-English notes on setup, materials, maintenance&mdash;without hype.</li>
+  <li><strong>Roundups:</strong> side-by-side category hubs that highlight the real trade-offs—fit, setup friction, maintenance, materials, and safety notes.</li>
+  <li><strong>Reviews:</strong> compact walk-throughs that answer “Will this fit how I actually use it?” with clear pros, cons, and practical setup notes.</li>
+  <li><strong>Buyer’s guidance:</strong> plain-English criteria so you know what to check before you buy—no fluff, no hype.</li>
 </ul>
 
-<h2>How We Evaluate</h2>
+<p><a class="btn" href="/roundups/">Browse Categories</a></p>
+
+<h2>How We Help You Decide Faster</h2>
+<p><strong>Most shoppers compare several options before deciding.</strong> We structure each page so the most important differences are obvious in seconds:</p>
+
 <ul>
-  <li><strong>Outcome-first:</strong> consistent performance, ergonomics, setup friction, and durability.</li>
-  <li><strong>Everyday reality:</strong> space, compatibility, useful accessories, and parts availability.</li>
-  <li><strong>Clarity over noise:</strong> specs explained in terms of real-world impact.</li>
+  <li><strong>Outcome-first criteria:</strong> fit and comfort for carriers and harnesses; clarity, filtration, and noise for aquatics; temperature and space needs for reptiles and amphibians.</li>
+  <li><strong>Daily-use focus:</strong> how easy it is to assemble, clean, and store—because that’s what you feel every day.</li>
+  <li><strong>Clear trade-offs:</strong> we spell out where a product shines and where it doesn’t, so expectations match reality.</li>
+</ul>
+
+<p>Jump straight to the hub and scan: <a href="/roundups/">Compare categories</a>.</p>
+
+<h2>What We Don’t Do (On Purpose)</h2>
+<p><strong>We do not display prices or star ratings.</strong> Prices change frequently and ratings can be misleading without context. Instead, we focus on durable factors—build quality, fit, ergonomics, compatibility, and upkeep—so our pages remain useful over time.</p>
+
+<h2>Our Process</h2>
+<p><strong>Each roundup is built from structured criteria</strong> so the same things are compared the same way across products. We emphasize fit notes, material choices, maintenance steps, and common use cases. That consistency helps you spot the meaningful differences quickly.</p>
+
+<ul>
+  <li><strong>Clarity first:</strong> short paragraphs, scannable bullets, and consistent terminology.</li>
+  <li><strong>Evergreen pages:</strong> guidance that holds up next month, not just today.</li>
+  <li><strong>Independent picks:</strong> we include affiliate links for convenience, but our guidance focuses on real-world suitability—not hype.</li>
+</ul>
+
+<p><a class="btn" href="/#quickstart">See the Quick Start guide</a></p>
+
+<h2>Where to Start</h2>
+<p>If you’re new here, begin at the <a href="/roundups/">Roundups hub</a>. Open a category that matches your goal—travel, cleaning, feeding, aquatics, reptiles &amp; amphibians, small pets—and skim the criteria at the top. From there, pop into any review for a deeper look and setup tips.</p>
+
+<ul>
+  <li><a href="/roundups/">Browse all categories</a></li>
+  <li><a href="/#quickstart">Use the Quick Start table</a></li>
 </ul>
 
 <h2>Affiliate Disclosure</h2>
-<p>Some pages include links to retailers. If a purchase is made through those links, Pet Gear Essentials may earn a commission at no additional cost to you. Recommendations remain independent and based on practical criteria.</p>
+<p>Some pages include links to retailers. If a purchase is made through those links, Pet Gear Essentials may earn a commission at no additional cost to you. <strong>Our guidance remains independent and criteria-driven.</strong></p>
+
+<p style="margin-top:14px;"><a class="btn" href="/roundups/">Explore Categories</a></p>

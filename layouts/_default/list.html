@@ -1,15 +1,57 @@
+{{ define "head" }}
+  {{/* Load the search script only once; harmless on non-roundups pages */}}
+  <script src="{{ "js/category-search.js" | relURL }}" defer></script>
+{{ end }}
+
 {{ define "main" }}
   <section class="content">
     <h1>{{ .Title }}</h1>
     {{ .Content }}
-    <ul style="list-style:none; padding:0; margin:1rem auto; max-width:800px;">
-      {{ range .Pages }}
-        <li style="margin:.4rem 0;">
-          <a href="{{ .RelPermalink }}">
-            {{ with .Params.display_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}
+
+    {{/* ROUNDUPS HUB: show search + card grid */}}
+    {{ if eq .Section "roundups" }}
+      <!-- Search (Roundups only) -->
+      <div class="search-wrap" role="search" aria-label="Search categories">
+        <input
+          id="categorySearch"
+          type="search"
+          inputmode="search"
+          autocomplete="off"
+          placeholder="Search categories…"
+          aria-label="Search categories" />
+        <button id="clearSearch" class="clear-btn" type="button" aria-label="Clear search">Clear</button>
+        <div id="searchCount" class="search-count" aria-live="polite"></div>
+      </div>
+
+      <!-- Category cards -->
+      <div id="catGrid" class="roundups-grid">
+        {{ range sort .Pages "Title" }}
+          {{ $title := cond (isset .Params "display_title") .Params.display_title .Title }}
+          <a class="roundups-card" href="{{ .RelPermalink }}" data-cat="{{ $title | plainify }}" aria-label="{{ $title }}">
+            <h3>{{ $title }}</h3>
+            {{ with .Params.breadcrumb_title }}
+              <p>{{ . }}</p>
+            {{ else }}
+              {{ with .Params.category }}<p>{{ . }}</p>{{ end }}
+            {{ end }}
           </a>
-        </li>
-      {{ end }}
-    </ul>
+        {{ end }}
+      </div>
+
+      <div id="noResults" class="no-results" hidden>No categories found.</div>
+
+    {{ else }}
+      {{/* DEFAULT LISTS (e.g., About section lists): simple link list, no search */}}
+      <ul style="list-style:none; padding:0; margin:1rem auto; max-width:800px;">
+        {{ range .Pages }}
+          <li style="margin:.4rem 0;">
+            <a href="{{ .RelPermalink }}">
+              {{ with .Params.display_title }}{{ . }}{{ else }}{{ .Title }}{{ end }}
+            </a>
+          </li>
+        {{ end }}
+      </ul>
+    {{ end }}
   </section>
 {{ end }}
+

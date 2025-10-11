@@ -38,22 +38,24 @@
     <!-- Header -->
     <header class="site-header">
       <div class="brand-block">
-        <a class="brand" href="/">{{ .Site.Title }}</a>
+        <a class="brand" href="/" aria-label="{{ .Site.Title }}">
+          <span class="brand-title">{{ .Site.Title }}</span>
+          <img class="brand-logo" src="{{ "img/pawmark.svg" | relURL }}" alt="" />
+        </a>
         {{ with .Site.Params.tagline }}<div class="brand-tagline">{{ . }}</div>{{ end }}
       </div>
-    <nav class="site-nav">
-  <a class="btn btn-ghost" href='{{ "/roundups/"  | relURL }}'>Explore Products</a>
-  <a class="btn btn-ghost" href='{{ "/about-us/" | relURL }}'>About</a>
-</nav>
 
-
-
+      <nav class="site-nav">
+        <a class="btn btn-ghost" href='{{ "/roundups/" | relURL }}'>Explore Products</a>
+        <a class="btn btn-ghost" href='{{ "/about/"    | relURL }}'>About</a>
+      </nav>
     </header>
 
     <!-- Page content -->
     <main class="paper">
       {{ block "main" . }}{{ end }}
     </main>
+<body {{ if .IsHome }}class="home"{{ end }}>
 
     <!-- Footer -->
     <footer class="site-footer">

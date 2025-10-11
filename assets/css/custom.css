@@ -1,5 +1,5 @@
 /* =======================
-   Smart Gear Advisor — Base Styles
+   Pet Gear Essentials — Base Styles
    ======================= */
 
 /* Tokens */
@@ -29,7 +29,10 @@ a:hover{text-decoration:underline}
   background:#e8f0ff; border:1px solid rgba(0,0,0,.06); color:#0b1a3a; text-decoration:none;
 }
 .btn:hover{filter:brightness(0.98)}
-.btn--ghost{
+
+/* Keep both ghost button class variants so existing HTML never breaks */
+.btn--ghost,
+.btn-ghost{
   background:transparent; border:1px solid rgba(255,255,255,.25); color:#e2e8f0;
 }
 
@@ -67,9 +70,20 @@ a:hover{text-decoration:underline}
   color:#fff; text-decoration:none;
   font-size:clamp(1.6rem, 2.5vw, 2.4rem);
   font-weight:800; letter-spacing:-0.02em; line-height:1;
+  display:inline-flex; align-items:center; gap:12px; /* title + icon row */
 }
+/* Pawmark / brand icon — bigger per request */
+.brand-logo{
+  width:40px; height:40px; display:inline-block; vertical-align:middle;
+  background:transparent !important;
+}
+@media (max-width:480px){
+  .brand-logo{width:30px;height:30px}
+}
+.brand-title{display:inline-block; line-height:1}
 .brand-tagline{color:#cbd5e1; font-size:.95rem}
-.site-nav .btn--ghost:hover{background:rgba(255,255,255,.08)}
+.site-nav .btn--ghost:hover,
+.site-nav .btn-ghost:hover{background:rgba(255,255,255,.08)}
 @media (max-width:480px){
   .brand-tagline{display:none}
   .site-header{padding:14px 16px}
@@ -150,6 +164,7 @@ a:hover{text-decoration:underline}
 
 /* Center CTA paragraphs that contain a .btn */
 .paper p:has(> a.btn) { text-align: center; }  /* modern browsers */
+
 /* Breadcrumbs styling */
 .breadcrumbs {
   font-size: .9rem;
@@ -158,3 +173,86 @@ a:hover{text-decoration:underline}
 }
 .breadcrumbs a { color: var(--accent); text-decoration: none; }
 .breadcrumbs a:hover { text-decoration: underline; }
+
+/* =======================
+   Category Search (Roundups hub only)
+   ======================= */
+.search-wrap{
+  display:flex; gap:.5rem; align-items:center;
+  max-width:720px; margin:12px auto 24px;   /* centers under title */
+}
+.search-wrap input[type="search"]{
+  flex:1; padding:12px 16px; min-height:44px; border-radius:9999px;
+  border:1px solid #d9e1ea; background:#fff; outline:none;
+}
+.search-wrap input[type="search"]:focus{
+  box-shadow:0 0 0 3px rgba(37,99,235,.20);
+  border-color:#93c5fd;
+}
+.search-wrap .clear-btn{
+  border:1px solid #d9e1ea; background:#fff; border-radius:9999px;
+  padding:10px 14px; cursor:pointer;
+}
+.search-count{font-size:.9rem; opacity:.8; margin-left:auto}
+.no-results{text-align:center; opacity:.75; margin:24px 0}
+
+@media (max-width:768px){
+  .search-wrap{flex-wrap:wrap}
+  .search-count{width:100%; margin-top:6px}
+}
+
+/* =======================
+   Header nav buttons override
+   ======================= */
+.site-nav .btn-ghost,
+.site-nav .btn--ghost{
+  background:#fff;
+  color:#0f172a;                     /* match header background */
+  border:1px solid rgba(15,23,42,.15);
+  text-decoration:none;
+}
+
+.site-nav .btn-ghost:hover,
+.site-nav .btn--ghost:hover{
+  background:#f8fafc;
+  box-shadow:0 2px 8px rgba(15,23,42,.08);
+}
+
+.site-nav .btn-ghost:focus-visible,
+.site-nav .btn--ghost:focus-visible{
+  outline:2px solid #93c5fd;         /* subtle focus ring */
+  outline-offset:2px;
+}
+/* Homepage page-wide background — clearer version (no extra blur) */
+body.home::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  /* light overlay + image in one layer keeps text readable without blur */
+  background:
+    linear-gradient(rgba(255,255,255,.58), rgba(255,255,255,.72)),
+    url("/img/home-bg.webp") center 38% / cover no-repeat;
+  filter: saturate(108%);
+  opacity:.24;                      /* subtle but visible */
+}
+
+/* Slightly stronger lift for the paper over the background */
+body.home .paper{ box-shadow:0 18px 50px rgba(15,23,42,.12); }
+/* === HOMEPAGE BACKGROUND — CRISP, NO BLUR === */
+body.home::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background-image:url("/img/home-bg.webp");
+  background-position:center 38%;
+  background-size:cover;
+  background-repeat:no-repeat;
+  /* IMPORTANT: no extra blur or haze */
+  filter:none !important;
+  opacity:.28; /* adjust 0.24–0.34 to taste */
+}
+
+/* optional: give the paper a little lift, keep as-is if you already have this */
+body.home .paper{ box-shadow:0 18px 50px rgba(15,23,42,.12); }
