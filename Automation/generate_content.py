@@ -15,7 +15,14 @@ HERO_DIR = STATIC / "hero" / "roundups"
 
 # ----- global write policy -----
 ADD_ONLY = True                 # never overwrite authored pages (stubs can be replaced)
-OVERWRITE_HOMEPAGE = True       # set False if you don’t want homepage to change each run
+OVERWRITE_HOMEPAGE = False      # set True if you want homepage to change each run
+OVERWRITE_ABOUT = False         # set True if you want about page to change each run
+CLEAN_ROUNDUP_HERO_TITLES = False  # one-time fixer; keep False to avoid touching existing pages
+
+# Review structure toggles that match the new outline
+JUMP_LINKS_ENABLED = False      # suppress auto "Jump to:" injection (we're not using it now)
+BAN_LONG_DASHES    = True       # normalize — / – (and entities) to " - "
+REVIEW_PASSTHROUGH = True       # REVIEW BODY = exactly what the prompt returns
 
 # ===== small utils =====
 def slug(s: str) -> str:
@@ -83,7 +90,13 @@ def _asin_from_row(row: dict) -> str:
     return ""
 
 def _sanitize_entities(html: str) -> str:
-    return html.replace("→","&rarr;").replace("—","&mdash;").replace("–","&ndash;")
+    # Normalize long dashes first if enabled, then entity-fix arrows
+    if BAN_LONG_DASHES:
+        html = (html.replace("—", " - ")
+                    .replace("&mdash;", " - ")
+                    .replace("–", " - ")
+                    .replace("&ndash;", " - "))
+    return html.replace("→","&rarr;")
 
 def _combine_brand_title(brand: str, title: str) -> str:
     b = (brand or "").strip()
@@ -194,32 +207,31 @@ def derive_concise_titles(brand: str, product_title: str, niche: str) -> tuple[s
     return (h1, seo, breadcrumb, (product_title or "").strip())
 
 # -----------------------------------------------------------------------------
-# OpenAI wiring (higher token caps + GPT-5 temperature guard + retries)
+# OpenAI wiring (robust: auto-select token param + Responses fallback)
 # -----------------------------------------------------------------------------
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 def _model_needs_default_temperature(model_name: str) -> bool:
-    """GPT-5 family rejects explicit non-default temperature; omit it."""
+    """Some families (e.g., gpt-5) behave better with default temperature; omit explicit temp."""
     return (model_name or "").lower().startswith("gpt-5")
 
 def call_llm(prompt: str) -> str:
     """
-    Calls Chat Completions with model-specific args and guardrails:
-    - Starts at 2000 output tokens, retries at 3000 on limit errors.
-    - Falls back to a concise variant if still limited.
-    - Omits 'temperature' for GPT-5 family (uses default).
-    - Retries if the API complains about temperature.
+    Robust LLM call:
+    - Tries Chat Completions with the correct token param for the model
+      (some models use `max_tokens`, others use `max_completion_tokens`).
+    - Bumps the output budget if the first call returns too short/empty.
+    - Falls back to the Responses API (with `max_output_tokens`) if needed.
     """
     model_lower = (MODEL or "").lower()
-    use_gpt5_args = any(tag in model_lower for tag in ("gpt-5", "gpt5", "o1", "o3"))
-
-    base_sys = {"role": "system", "content": "Return only a clean HTML fragment. No scripts."}
+    base_sys  = {"role": "system", "content": "Return only a clean HTML fragment. No scripts."}
     base_user = {"role": "user", "content": prompt}
+    msgs = [base_sys, base_user]
 
-    def _create(max_out: int, msgs):
+    def _chat_with(param_name: str, max_out: int):
         kwargs = {"model": MODEL, "messages": msgs}
-        if use_gpt5_args:
+        if param_name == "max_completion_tokens":
             kwargs["max_completion_tokens"] = max_out
         else:
             kwargs["max_tokens"] = max_out
@@ -227,38 +239,54 @@ def call_llm(prompt: str) -> str:
             kwargs["temperature"] = 0.4
         return _client.chat.completions.create(**kwargs)
 
-    msgs = [base_sys, base_user]
+    def _chat_best(max_out: int) -> str:
+        # Heuristic: newer families (gpt-5, o4/o3, 4.1) usually take max_completion_tokens.
+        prefer_completion = any(tag in model_lower for tag in ("gpt-5", "o4", "o3", "4.1"))
+        order = ("max_completion_tokens", "max_tokens") if prefer_completion else ("max_tokens", "max_completion_tokens")
+        last_err = None
+        for pname in order:
+            try:
+                resp = _chat_with(pname, max_out)
+                out = (resp.choices[0].message.content or "").strip()
+                if out:
+                    return out
+            except BadRequestError as e:
+                msg = (getattr(e, "message", "") or str(e)).lower()
+                last_err = e
+                # If the server tells us the param is wrong, try the other one.
+                if ("unsupported parameter" in msg and "max_tokens" in msg) or ("unsupported parameter" in msg and "max_completion_tokens" in msg):
+                    continue
+                # Any other chat error: rethrow.
+                raise
+        # If both param names failed or returned empty, raise to trigger Responses fallback.
+        if last_err:
+            raise last_err
+        return ""
 
+    def _responses(max_out: int) -> str:
+        # Responses API needs plain text and `max_output_tokens`
+        user_text = "".join(m.get("content", "") for m in msgs if m.get("role") == "user")
+        r = _client.responses.create(model=MODEL, input=user_text, max_output_tokens=max_out)
+        return (getattr(r, "output_text", "") or "").strip()
+
+    # Try chat with normal budget, then larger; if that fails, try Responses.
     try:
-        resp = _create(2000, msgs)
-        return resp.choices[0].message.content.strip()
-    except BadRequestError as e:
-        msg = (getattr(e, "message", "") or str(e)).lower()
+        out = _chat_best(2000)
+        if out:
+            return out
+        out = _chat_best(3000)
+        if out:
+            return out
+    except BadRequestError:
+        # Fall through to Responses
+        pass
 
-        # Remove temperature if unsupported and retry once
-        if "temperature" in msg or "unsupported" in msg:
-            try:
-                resp = _create(2000, msgs)  # _create omits temp for GPT-5 automatically
-                return resp.choices[0].message.content.strip()
-            except BadRequestError as e2:
-                msg = (getattr(e2, "message", "") or str(e2)).lower()
+    out = _responses(2000)
+    if out:
+        return out
+    return _responses(3000)
 
-        # Handle output limit: bump, then concise
-        if "max_tokens" in msg or "output limit" in msg:
-            try:
-                resp = _create(3000, msgs)
-                return resp.choices[0].message.content.strip()
-            except BadRequestError:
-                concise_msgs = [
-                    base_sys,
-                    {"role": "user", "content": prompt + "\n\nLimit total length to ~600 words."},
-                ]
-                resp = _create(1500, concise_msgs)
-                return resp.choices[0].message.content.strip()
-
-        raise
-
-# Simple Jinja2 fill
+# Simple Jinja2 fill (used by generator and repair script)
 def fill(template: str, vars: dict) -> str:
     from jinja2 import Template
     return Template(template).render(**vars)
@@ -405,80 +433,85 @@ STRUCTURE (exact)
 - STOP: Do not list products here. The generator inserts one dense product paragraph per item under this heading (each with an external affiliate link and an internal review link).
 """
 
-# ===== Review prompt =====
+# ===== Review prompt (UPDATED to match new outline) =====
 REVIEW_PROMPT = r"""
-Generate clean HTML only (no <head>/<body>). Use short lines (1–3 sentences per <p>), with bold for scan-ability (not hype). Avoid pricing/availability/ratings language. All buy links: rel="nofollow sponsored". Full-width layout is preferred (we add wrapper classes; do not center-wrap content).
+You are writing a REVIEW (individual product page) for {{brand}} {{product_title}} in the {{niche}} niche.
 
-Variables available
-{{product_title}}
-{{brand}}
-{{niche}}
-{{affiliate_link_short}}
-{{product_short}}
-
-STRICT TOP-OF-PAGE RULE:
-- The first visible block must be the Jump Links (no paragraphs before it). Do not add any paragraph above Jump Links.
+OUTPUT RULES
+- Return a CLEAN HTML fragment only (no <html>, <head>, scripts).
+- Short paragraphs (1–3 sentences). Objective, conversational, human.
+- DO NOT mention prices, discounts, ratings/reviews, warranties/returns, or financing.
+- All external buy links must use rel="nofollow sponsored".
+- Use {{product_short}} whenever you name the product. Never paste a full marketplace listing title; keep names concise (~5–8 words).
+- Do NOT use em-dashes or long chained dashes. Prefer commas or short sentences. Hyphens (-) for compound modifiers are fine.
+- Avoid formulaic openers like “In {{niche}}, shoppers prioritize…”. Write naturally (e.g., “Background sound can steady anxious pets…”).
+- The intro and the product info sections must each be wrapped in <div class="full-width">…</div> so they span the page width.
+- Exactly ONE external buy link appears in the intro, and exactly ONE in the product info paragraph. Anchor text must be <strong>Buy on Amazon</strong>.
+- Keep language evergreen; no time-sensitive claims.
 
 STRUCTURE (exact order)
 
-1) Jump Links (compact, inline)
-<p><strong>Jump to:</strong> 
-  <a href="#intro">Intro</a> · 
-  <a href="#pros-cons">Pros &amp; Cons</a> · 
-  <a href="#compare-more">Compare &amp; Learn More</a> · 
-  <a href="#verdict">Final Verdict</a> · 
-  <a href="#faqs">FAQs</a>
-</p>
-
-2) Introductory Paragraph (NO subtitle heading)
-- Start with a bold, evergreen fact/insight relevant to {{niche}} (no prices/ratings/reviews/returns/warranty/finance).
-- Then explain relevance/importance/benefits of the product in {{niche}} (use-care + outcomes).
-- Target length: ~160–220 words (roughly double an 80–130 intro).
-- Include exactly ONE buy link using {{affiliate_link_short}} at the end of this paragraph. Anchor text: <strong>See on Amazon</strong>.
-
+2) Intro (80–130 words) — natural opener + single buy link at end
 <div id="intro" class="full-width">
-<p><strong>[Insert bold fact/insight relevant to {{niche}}.]</strong> [Explain practical benefits, setup friction, compatibility, and daily usability; keep tone evergreen and objective. Focus on how the product helps typical users achieve predictable results across common scenarios. Avoid price or rating talk.]</p>
-<p><a href="{{affiliate_link_short}}" rel="nofollow sponsored"><strong>See on Amazon</strong></a></p>
+  <p><strong>[Write a natural, human opener about the use-case for {{niche}} without using the literal phrase “In {{niche}}”.]</strong> Introduce {{brand}} {{product_short}} early and explain practical benefits (setup friction, portability/fit, maintenance, day-to-day reliability). Keep sentences tight; no em-dashes. <a href="{{affiliate_link_short}}" rel="nofollow sponsored"><strong>Buy on Amazon</strong></a></p>
 </div>
 
-3) Pros & Cons (two-column T-chart; balanced)
-- Single centered title including a short product name: “Pros &amp; Cons of {{product_short}}”.
-- Keep bullets concise, concrete, and parallel in tone/length.
+3) Pros & Cons (T-chart; balanced; no links inside bullets)
+- Start with an <hr> line above the title.
+- Title: (h3) “Pros and Cons”.
+- Pros: 4–6 bullets. Cons: 2–4 bullets.
+- Each bullet begins with a <strong>bold lead word</strong> (e.g., Comfort, Setup, Battery).
 
-<h3 id="pros-cons" style="text-align:center;">Pros &amp; Cons of {{product_short}}</h3>
-<div class="pc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid #e5e7eb;padding-top:12px;">
+<hr />
+<h3 id="pros-cons">Pros and Cons</h3>
+<div class="pc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
   <ul>
-    <li><strong>Comfort:</strong> lightweight build and good grip reduce fatigue.</li>
-    <li><strong>Clarity:</strong> clear labeling or cues speed up setup.</li>
-    <li><strong>Durability:</strong> reinforced parts extend lifespan.</li>
-    <li><strong>Versatility:</strong> works across common scenarios at home or travel.</li>
+    <li><strong>[Lead word]:</strong> [Short, concrete benefit.]</li>
+    <li><strong>[Lead word]:</strong> [Short, concrete benefit.]</li>
+    <li><strong>[Lead word]:</strong> [Short, concrete benefit.]</li>
+    <li><strong>[Lead word]:</strong> [Short, concrete benefit.]</li>
   </ul>
-  <ul style="border-left:1px solid #e5e7eb;padding-left:16px;">
-    <li><strong>Learning Curve:</strong> some modes/settings may need a quick read-through.</li>
-    <li><strong>Maintenance:</strong> occasional cleaning or part swaps keep performance consistent.</li>
+  <ul>
+    <li><strong>[Lead word]:</strong> [Short, honest limitation.]</li>
+    <li><strong>[Lead word]:</strong> [Short, honest limitation.]</li>
   </ul>
 </div>
+<hr />
 
-4) Compare & Learn More
-<h3 id="compare-more" style="text-align:center;">Compare &amp; Learn More</h3>
-<p>Before you decide, confirm compatibility and compare alternatives within {{niche}}. For a broader view, <a href="#" >explore our {{niche}} roundup</a>, then return here if {{brand}} {{product_title}} fits your setup. When you’re ready, <a href="{{affiliate_link_short}}" rel="nofollow sponsored"><strong>view current options</strong></a>.</p>
+4) Product Info Paragraph (180–240 words; exactly one buy link)
+- Mention {{brand}} {{product_short}} in the first two lines.
+- Describe what’s noteworthy or unique; highlight at least two concrete benefits or outcomes users can expect.
+- Keep sentences tight; no em-dashes. Use {{product_short}} (never the raw long listing title).
+- Include ONE external buy link with anchor text <strong>Buy on Amazon</strong> exactly once in this paragraph.
 
-5) Final Verdict
-<h3 id="verdict" style="text-align:center;">Final Verdict</h3>
-<p>If you value <strong>reliable day-to-day performance</strong> and <strong>predictable setup</strong>, {{brand}} {{product_title}} fits. It emphasizes <strong>comfort that holds up</strong> and <strong>consistent clarity</strong> so your focus stays on the task—not the gear. <a href="{{affiliate_link_short}}" rel="nofollow sponsored"><strong>See on Amazon</strong></a></p>
+<div class="full-width">
+  <p>[Write 180–240 words explaining who {{brand}} {{product_short}} is for, key traits, fit/compatibility notes, and simple upkeep. Focus on outcomes such as steadier behavior, easier setup, or cleaner results. Keep language evergreen and readable; no em-dashes or long chained phrases.] <a href="{{affiliate_link_short}}" rel="nofollow sponsored"><strong>Buy on Amazon</strong></a></p>
+</div>
 
-6) FAQs (non-interactive; exactly 3 Q&As; compact, consistent length)
-TOPIC GUARDRAILS:
-- Allowed: compatibility, setup, maintenance/cleaning, safety/best-practice, use cases, lifespan/materials, portability, fit/size notes.
-- Forbidden: prices/discounts/availability, star ratings, user reviews, warranties/refunds/returns, financing, guarantees.
+5) FAQs — 5 Q&A pairs
+- Place an <hr> directly above the FAQ title.
+- Title must be (h3) “Frequently Asked Questions”.
+- Formatting: each question on its own line in <strong>…</strong>, followed by its answer on the next line. Insert a single blank line between each Q&A pair.
+- Topics allowed: compatibility/fit, setup, maintenance/cleaning, safety/best practices, use cases, lifespan/materials, portability. No prices/ratings/returns.
+- Keep answers 2–3 sentences each (~45–70 words).
 
-<h2 id="faqs" style="text-align:center;">FAQs</h2>
-<h4><strong>[Question 1 relevant to {{niche}}]</strong></h4>
-<p>[2–3 sentences (~45–70 words) answering Q1 within allowed topics.]</p>
-<h4><strong>[Question 2 relevant to {{niche}}]</strong></h4>
-<p>[2–3 sentences (~45–70 words) answering Q2 within allowed topics.]</p>
-<h4><strong>[Question 3 relevant to {{niche}}]</strong></h4>
-<p>[2–3 sentences (~45–70 words) answering Q3 within allowed topics.]</p>
+<hr />
+<h3 id="faqs">Frequently Asked Questions</h3>
+
+<p><strong>[Question 1 tailored to {{product_short}} and {{niche}}]</strong></p>
+<p>[Answer 1 — 2–3 sentences within allowed topics; no em-dashes.]</p>
+
+<p><strong>[Question 2]</strong></p>
+<p>[Answer 2 — 2–3 sentences.]</p>
+
+<p><strong>[Question 3]</strong></p>
+<p>[Answer 3 — 2–3 sentences.]</p>
+
+<p><strong>[Question 4]</strong></p>
+<p>[Answer 4 — 2–3 sentences.]</p>
+
+<p><strong>[Question 5]</strong></p>
+<p>[Answer 5 — 2–3 sentences.]</p>
 """
 
 ABOUT_PROMPT = r"""
@@ -515,7 +548,8 @@ def build_about():
     site_name = tomllib.loads((PROJECT / "hugo.toml").read_text()).get("title", "Site")
     html = call_llm(fill(ABOUT_PROMPT, {"site_name": site_name}))
     html = _sanitize_entities(html)
-    write_markdown(CONTENT / "about" / "_index.md", {"title": "About"}, html, overwrite=True)
+    out_path = CONTENT / "about" / "_index.md"
+    write_markdown(out_path, {"title": "About"}, html, overwrite=OVERWRITE_ABOUT)
 
 def build_homepage():
     site_name = tomllib.loads((PROJECT / "hugo.toml").read_text()).get("title", "Site")
@@ -532,7 +566,8 @@ def build_homepage():
     grid_html = render_featured_grid(featured_pairs)
     html = html.replace(FEATURED_ANCHOR, grid_html)
     html = html.replace("<!-- GENERATOR_INSERT_ROUNDUPS_GRID -->", grid_html)
-    write_markdown(CONTENT / "_index.md", {"title": ""}, html, overwrite=OVERWRITE_HOMEPAGE)
+    out_path = CONTENT / "_index.md"
+    write_markdown(out_path, {"title": ""}, html, overwrite=OVERWRITE_HOMEPAGE)
 
 # ===== Roundups: scaffold enforcer =====
 def _extract_intro_for_roundup(body_html: str) -> tuple[str, str]:
@@ -657,8 +692,10 @@ def ensure_review_stub_if_missing(row: dict, product_slug: str):
     }
     write_markdown(path, fm, _sanitize_entities(body))
 
-# ===== Reviews: structure enforcers =====
+# ===== Reviews: helpers kept (not used when pass-through) =====
 def _sanitize_top_to_jump_links(body_html: str) -> str:
+    if not JUMP_LINKS_ENABLED:
+        return body_html
     m = re.search(r'<p><strong>Jump to:</strong>', body_html)
     if not m: return body_html
     return body_html[m.start():]
@@ -678,85 +715,48 @@ def render_quick_take_optional(row: dict) -> str:
     )
 
 def _inject_review_lead_paragraph(body_html: str, niche: str, affiliate_link_short: str) -> str:
-    body_html = re.sub(r'<h2 id="intro">.*?</h2>\s*', '', body_html, flags=re.S)
-    fact_line = f"<strong>In {niche}, shoppers prioritize practical outcomes over raw specs—comfort, consistency, and predictable setup drive confidence.</strong> "
-    m = re.search(r"<p>(.*?)</p>", body_html, flags=re.S)
-    if m:
-        base_para = re.sub(r"</?strong>", "", m.group(1))
-    else:
-        base_para = ("The right pick simplifies every day you use it. It focuses on ease of use and consistency so you spend less time adjusting and more time getting results.")
-    addon = (" It emphasizes real-world relevance—faster setup, fewer surprises, and compatibility that just works."
-             " Think about grip/fit, materials that hold up, and accessories you’ll actually use; these matter more than flashy specs."
-             " The goal is confident, repeatable results across typical scenarios at home or on the go.")
-    new_intro = f'<div id="intro" class="full-width"><p>{fact_line}{base_para}{addon}</p><p><a href="{affiliate_link_short or "#"}" rel="nofollow sponsored"><strong>See on Amazon</strong></a></p></div>'
-    if m: return body_html.replace(m.group(0), new_intro, 1)
-    return new_intro + body_html
+    return body_html
 
 def _ensure_jump_links(html: str) -> str:
-    if '<a href="#pros-cons">' in html and '<a href="#faqs">' in html:
-        return html
-    jump = (
-        '<p><strong>Jump to:</strong> '
-        '<a href="#intro">Intro</a> · '
-        '<a href="#pros-cons">Pros &amp; Cons</a> · '
-        '<a href="#compare-more">Compare &amp; Learn More</a> · '
-        '<a href="#verdict">Final Verdict</a> · '
-        '<a href="#faqs">FAQs</a></p>\n'
-    )
-    return jump + html
+    return html
 
 def _ensure_pros_cons(html: str, product_short: str) -> str:
     if 'id="pros-cons"' in html:
         return html
     block = (
+        '<hr />\n'
         f'<h3 id="pros-cons" style="text-align:center;">Pros &amp; Cons of {product_short}</h3>\n'
-        '<div class="pc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;'
-        'border-top:1px solid #e5e7eb;padding-top:12px;">\n'
+        '<div class="pc-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">\n'
         '  <ul>\n'
         '    <li><strong>Comfort:</strong> lightweight build and good grip reduce fatigue.</li>\n'
         '    <li><strong>Clarity:</strong> clear labeling or cues speed up setup.</li>\n'
         '    <li><strong>Durability:</strong> reinforced parts extend lifespan.</li>\n'
         '    <li><strong>Versatility:</strong> works across common scenarios at home or travel.</li>\n'
         '  </ul>\n'
-        '  <ul style="border-left:1px solid #e5e7eb;padding-left:16px;">\n'
-        '    <li><strong>Learning Curve:</strong> some modes/settings may need a quick read-through.</li>\n'
-        '    <li><strong>Maintenance:</strong> occasional cleaning or part swaps keep performance consistent.</li>\n'
+        '  <ul>\n'
+        '    <li><strong>Learning curve:</strong> some modes/settings may need a quick read-through.</li>\n'
+        '    <li><strong>Accessories:</strong> some add-ons may be sold separately.</li>\n'
         '  </ul>\n'
         '</div>\n'
+        '<hr />\n'
     )
-    if '<div id="intro"' in html:
-        return html.replace('</div>', '</div>\n' + block, 1)
     return block + html
 
 def _ensure_compare_verdict_faqs(html: str, niche: str, brand: str, product_title: str, affiliate: str) -> str:
-    if 'id="compare-more"' not in html:
-        html += (
-            '\n<h3 id="compare-more" style="text-align:center;">Compare &amp; Learn More</h3>\n'
-            f'<p>Before you decide, confirm compatibility and compare alternatives within {niche}. '
-            f'For a broader view, <a href="#">explore our {niche} roundup</a>, then return here if '
-            f'{brand} {product_title} fits your setup. When you’re ready, '
-            f'<a href="{affiliate}" rel="nofollow sponsored"><strong>view current options</strong></a>.</p>\n'
-        )
-    if 'id="verdict"' not in html:
-        html += (
-            '\n<h3 id="verdict" style="text-align:center;">Final Verdict</h3>\n'
-            f'<p>If you value <strong>reliable day-to-day performance</strong> and '
-            f'<strong>predictable setup</strong>, {brand} {product_title} fits. It emphasizes '
-            f'<strong>comfort that holds up</strong> and <strong>consistent clarity</strong> so your focus stays on the task—'
-            f'not the gear. <a href="{affiliate}" rel="nofollow sponsored"><strong>See on Amazon</strong></a></p>\n'
-        )
     if 'id="faqs"' not in html:
         html += (
-            '\n<h2 id="faqs" style="text-align:center;">FAQs</h2>\n'
-            f'<h4><strong>How do I confirm {product_title} fits common setups?</strong></h4>\n'
-            '<p>Check dimensions/fit notes and connector types against your current setup. '
-            'When in doubt, measure and compare to the product specs to avoid surprises.</p>\n'
-            '<h4><strong>What basic maintenance keeps performance consistent?</strong></h4>\n'
-            '<p>Wipe down high-contact areas, check for loose parts, and replace wear items on a regular cadence. '
-            'Simple upkeep prevents small issues from compounding.</p>\n'
-            '<h4><strong>Is it easy to travel or store?</strong></h4>\n'
-            '<p>Use a protective case or pouch, coil cords loosely, and avoid over-packing. '
-            'These habits reduce abrasion and help the product last longer.</p>\n'
+            '\n<hr />\n'
+            '<h3 id="faqs" style="text-align:center;">Frequently Asked Questions</h3>\n'
+            '<p><strong>How do I confirm fit or compatibility?</strong></p>\n'
+            '<p>Check dimensions and connector notes against your setup. Measure when in doubt and compare to the product specifications.</p>\n'
+            '<p><strong>What basic maintenance keeps performance consistent?</strong></p>\n'
+            '<p>Wipe the exterior with a slightly damp cloth and dry it. Keep ports clear and avoid liquids near buttons or vents.</p>\n'
+            '<p><strong>How should I set placement?</strong></p>\n'
+            '<p>Place it a few feet from your pet on a stable surface, pointed toward the sound or area you want to influence.</p>\n'
+            '<p><strong>Can it run while charging?</strong></p>\n'
+            '<p>Many units can, but charging cables add clutter. For travel or crate use, charge beforehand and keep cables out of reach.</p>\n'
+            '<p><strong>What volume level is sensible?</strong></p>\n'
+            '<p>Use the lowest level that masks the distraction while staying comfortable for conversation in the room.</p>\n'
         )
     return html
 
@@ -792,21 +792,12 @@ def build_review_row(row: dict, idx: int):
         "product_short": product_short,
     }))
 
-    # Enforce structure regardless of model variability
-    body = _ensure_jump_links(body)
-    body = _sanitize_top_to_jump_links(body)
-    body = _inject_review_lead_paragraph(body, niche, affiliate_link or "")
-    body = _ensure_pros_cons(body, product_short)
-    body = _ensure_compare_verdict_faqs(body, niche, brand, raw_title, affiliate_link or "#")
-
-    qt_html = render_quick_take_optional(row)
-    if "<!-- QUICK_TAKE -->" in body:
-        body = body.replace("<!-- QUICK_TAKE -->", qt_html, 1)
-    elif qt_html and 'id="pros-cons"' in body:
-        body = body.replace('<h3 id="pros-cons">', qt_html + '\n<h3 id="pros-cons">', 1)
-
-    body = _sanitize_entities(body)
-    body = re.sub(r'<a ([^>]*?)rel="([^"]*nofollow sponsored[^"]*)"([^>]*)>', r'<a \1rel="\2 noopener" target="_blank"\3>', body)
+    # PASS-THROUGH for reviews: do not inject/alter structure; only harden links
+    body = re.sub(
+        r'<a ([^>]*?)rel="([^"]*nofollow sponsored[^"]*)"([^>]*)>',
+        r'<a \1rel="\2 noopener" target="_blank"\3>',
+        body
+    )
 
     roundup_url = f"/roundups/{slug(category)}/{slug(niche)}/" if category and niche else "/roundups/"
     btn = f'<p><a class="btn" href="{affiliate_link}" target="_blank" rel="nofollow sponsored noopener">{cta_label}</a></p>' if affiliate_link else ""
@@ -840,7 +831,7 @@ def load_reviews_map(reviews_csv: pathlib.Path) -> dict[tuple[str, str], list[di
 def build_roundups_from_sources(reviews_csv: pathlib.Path, roundups_csv: pathlib.Path):
     print("[roundups] start")
     reviews_map = load_reviews_map(reviews_csv)
-    desired_keys: list[tuple[str,str,str,str]] = []
+    desired_keys: list[tuple[str, str, str, str]] = []
     if roundups_csv.exists():
         with roundups_csv.open(newline="", encoding="utf-8") as f:
             for raw in csv.DictReader(f):
@@ -879,6 +870,9 @@ def build_reviews_from_csv(reviews_csv: pathlib.Path):
 # ===== One-time cleaner: remove old inner hero titles =====
 def clean_existing_roundup_hero_titles():
     if not ROUNDUPS.exists(): return
+    if ADD_ONLY and not CLEAN_ROUNDUP_HERO_TITLES:
+        print("[cleaner-skip] ADD_ONLY=True and CLEAN_ROUNDUP_HERO_TITLES=False; not touching existing roundups.")
+        return
     for md in ROUNDUPS.rglob("*.md"):
         txt = md.read_text(encoding="utf-8")
         changed = re.sub(

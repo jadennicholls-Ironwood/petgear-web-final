@@ -92,8 +92,6 @@ a:hover{text-decoration:underline}
 /* =======================
    Tables (generic + compare)
    ======================= */
-
-/* Style any table in main content */
 .paper table{
   border-collapse:separate !important;
   border-spacing:0 !important;
@@ -211,36 +209,22 @@ a:hover{text-decoration:underline}
   border:1px solid rgba(15,23,42,.15);
   text-decoration:none;
 }
-
 .site-nav .btn-ghost:hover,
 .site-nav .btn--ghost:hover{
   background:#f8fafc;
   box-shadow:0 2px 8px rgba(15,23,42,.08);
 }
-
 .site-nav .btn-ghost:focus-visible,
 .site-nav .btn--ghost:focus-visible{
   outline:2px solid #93c5fd;         /* subtle focus ring */
   outline-offset:2px;
 }
-/* Homepage page-wide background — clearer version (no extra blur) */
-body.home::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  /* light overlay + image in one layer keeps text readable without blur */
-  background:
-    linear-gradient(rgba(255,255,255,.58), rgba(255,255,255,.72)),
-    url("/img/home-bg-v2.webp") center 38% / cover no-repeat;
-  filter: saturate(108%);
-  opacity:.24;                      /* subtle but visible */
-}
 
-/* Slightly stronger lift for the paper over the background */
-body.home .paper{ box-shadow:0 18px 50px rgba(15,23,42,.12); }
-/* === HOMEPAGE BACKGROUND — CRISP, NO BLUR === */
-body.home::before{
+/* =======================
+   SITE-WIDE BACKGROUND (use homepage hero everywhere)
+   ======================= */
+/* Applies on ALL pages unless you add body_class: "no-global-bg" */
+body:not(.no-global-bg)::before{
   content:"";
   position:fixed;
   inset:0;
@@ -249,10 +233,9 @@ body.home::before{
   background-position:center 38%;
   background-size:cover;
   background-repeat:no-repeat;
-  /* IMPORTANT: no extra blur or haze */
-  filter:none !important;
-  opacity:.28; /* adjust 0.24–0.34 to taste */
+  filter:none !important;     /* keep it crisp */
+  opacity:.28;                /* adjust 0.24–0.34 to taste */
 }
 
-/* optional: give the paper a little lift, keep as-is if you already have this */
-body.home .paper{ box-shadow:0 18px 50px rgba(15,23,42,.12); }
+/* Per-page opt-out */
+body.no-global-bg::before{ display:none; }

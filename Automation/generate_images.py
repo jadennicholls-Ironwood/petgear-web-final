@@ -200,7 +200,7 @@ def build_prompt(category: str, niche: str, style: str,
         f"Style: {style} — {style_desc}. "
         "Focus: the specific product type for this niche in **realistic use**, not just isolated on a blank surface. "
         "Composition: layered foreground/mid/background with context props so the scene feels full but uncluttered; leave some negative space for a headline. "
-        "Quality: photorealistic materials, accurate anatomy if any animal appears, natural lighting, believable reflections and shadows. "
+        "Quality: photorealistic materials, accurate human and animal anatomy when present, natural lighting, believable reflections and shadows. "
         "Rules: no logos, no text, no watermarks, no packaging, no UI, brand-neutral objects only. "
         "Limit living beings to **zero or one** individual; do not add extra animals."
     )
@@ -210,7 +210,15 @@ def build_prompt(category: str, niche: str, style: str,
     else:
         subj += " Do not include animals unless they are naturally implied by the product scene."
     if allow_hand:
-        subj += " Optionally include a human **hand or arm** interacting with the product (no full face), only if it feels natural."
+        # === Hands/arms anatomy guardrails ===
+        subj += (
+            " Optionally include **one** human hand and partial forearm interacting with the product (no full face)."
+            " Anatomy rules: the hand must be clearly attached to a plausible forearm and wrist;"
+            " if the limb exits the frame, crop at mid-forearm or above (not at the wrist) so continuity is obvious;"
+            " prefer a neutral sleeve to clarify the arm; keep proportions realistic; joints must bend naturally;"
+            " show exactly five fingers including a thumb; no extra/missing/merged digits; no floating or disembodied hands;"
+            " keep scale consistent with the product."
+        )
 
     # Defensive guidance to reduce odd creatures and random dogs
     safety = (

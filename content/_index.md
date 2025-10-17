@@ -3,11 +3,10 @@ title: ""
 description: "Choose reliable pet gear faster with clear comparisons, practical criteria, and focused product guidance."
 ---
 
-<h2>Find the right pet gear faster</h2>
+<h2>-Find The Right Pet Gear Faster-</h2>
 <p><strong>More than half of households care for at least one pet.</strong> New products appear every season and many look similar. Pet Gear Essentials gives you a clear path through the noise. We explain what matters, compare options with consistent criteria, and point you to the next step so you can buy with confidence and focus on daily life with your pet.</p>
 <p><a class="btn" href="/roundups/">Browse Categories</a></p>
 
-<p><strong>Jump to:</strong> <a href="#quickstart">Quick Start</a>, <a href="#why-choose-pge">Why Choose Pet Gear Essentials?</a>, <a href="#how-we-evaluate">How We Evaluate</a>, <a href="#faqs">FAQs</a></p>
 
 <h2>Check Out Our Featured Product!</h2>
 <div class="roundups-grid">
@@ -17,49 +16,124 @@ description: "Choose reliable pet gear faster with clear comparisons, practical 
   </a>
 </div>
 
-<h2 id="quickstart">Quick Start</h2>
-<p>Match your goal to a starting category. Open the roundup, scan the criteria at the top, then jump into a review if you want details and setup tips.</p>
-<div class="table-scroll" style="overflow-x:auto">
-  <table style="border:2px solid #dfe8f2; border-radius:12px;">
-    <thead>
-      <tr>
-        <th>Your goal</th>
-        <th>Start here</th>
-        <th>What to check</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Travel with less stress</strong></td>
-        <td>Carriers and crates</td>
-        <td>Fit by measurements, ventilation, handle comfort, ease of cleaning</td>
-      </tr>
-      <tr>
-        <td><strong>Cleaner tanks and terrariums</strong></td>
-        <td>Filters and cleaning gear</td>
-        <td>Flow rate or access, media type, noise level, maintenance routine</td>
-      </tr>
-      <tr>
-        <td><strong>Better walks and control</strong></td>
-        <td>Harnesses and leads</td>
-        <td>Chest and neck fit, hardware strength, adjustment range, comfort</td>
-      </tr>
-      <tr>
-        <td><strong>Safe heat and habitat</strong></td>
-        <td>Reptile and amphibian care</td>
-        <td>Temperature range, lighting type, enclosure access, cleaning steps</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<section id="pet-groups-zz" class="pge-zz">
+  <hr><h2>Find Products For Pets of All Shapes and Sizes!</h2>
+  <!-- Row 1: Dogs (image left) -->
+  <article class="pge-zz-row">
+    <figure class="pge-zz-media">
+      <img src="/home/pet-groups/dogs.webp" width="1200" height="675" loading="lazy" alt="Happy dog wearing a harness on a trail.">
+    </figure>
+    <div class="pge-zz-copy">
+      <h3>Dogs</h3>
+      <ul class="pge-zz-list">
+        <li><strong>Durable Harness & Leash Sets:</strong> built for comfort, control, and daily walks</li>
+        <li><strong>Cozy Orthopedic Dog Beds: </strong>support joints and promote better rest</li>
+        <li><strong>Secure Crates & Travel Kennels: </strong>safe, easy-clean options for home or road</li>
+        <li><strong>Interactive Chew & Puzzle Toys: </strong>keep dogs entertained and mentally sharp</li>
+      </ul>
+    </div>
+  </article>
 
+  <!-- Row 2: Cats (image right) -->
+<hr>
+<article class="pge-zz-row flip">
+  <figure class="pge-zz-media">
+    <img src="/home/pet-groups/cats.webp" width="1200" height="675" loading="lazy" alt="Cat lounging on a perch playing with a toy.">
+  </figure>
+  <div class="pge-zz-copy">
+    <h3>Cats</h3>
+    <ul class="pge-zz-list">
+      <li><strong>Easy-Clean Litter Boxes & Mats:</strong> reduce odor and simplify cleanup</li>
+      <li><strong>Sturdy Scratching Posts:</strong> protect furniture and satisfy natural instincts</li>
+      <li><strong>Multi-Level Cat Trees & Perches:</strong> give cats room to climb, nap, and play</li>
+      <li><strong>Filtered Water Fountains:</strong> encourage hydration and support kidney health</li>
+    </ul>
+  </div>
+</article>
+
+<!-- Row 3: Reptiles & Amphibians (image left) -->
+<hr>
+<article class="pge-zz-row">
+  <figure class="pge-zz-media">
+    <img src="/home/pet-groups/reptiles-amphibians.webp" width="1200" height="675" loading="lazy" alt="Leopard gecko resting inside a warm terrarium.">
+  </figure>
+  <div class="pge-zz-copy">
+    <h3>Reptiles & Amphibians</h3>
+    <ul class="pge-zz-list">
+      <li><strong>Spacious Terrariums & Enclosures:</strong> maintain healthy temperature and humidity</li>
+      <li><strong>Heat Lamps & Thermostat Controls:</strong> ensure precise warmth for every species</li>
+      <li><strong>UVB Lighting Systems:</strong> promote calcium absorption and bone strength</li>
+      <li><strong>Natural Substrates & Hides:</strong> create realistic, stress-free habitats</li>
+    </ul>
+  </div>
+</article>
+
+<!-- Row 4: Birds (image right) -->
+<hr>
+<article class="pge-zz-row flip">
+  <figure class="pge-zz-media">
+    <img src="/home/pet-groups/birds.webp" width="1200" height="675" loading="lazy" alt="Blue parakeet perched on a swing in a bright cage.">
+  </figure>
+  <div class="pge-zz-copy">
+    <h3>Birds</h3>
+    <ul class="pge-zz-list">
+      <li><strong>Comfortable Bird Cages:</strong> roomy layouts that simplify daily cleaning</li>
+      <li><strong>Perches & Swings:</strong> promote balance, movement, and healthy activity</li>
+      <li><strong>Seed & Pellet Feeders:</strong> keep feeding areas organized and accessible</li>
+      <li><strong>Foraging & Chew Toys:</strong> reduce boredom and encourage natural behaviors</li>
+    </ul>
+  </div>
+</article>
+
+<!-- Row 5: Fish & Aquatic (image left) -->
+<hr>
+<article class="pge-zz-row">
+  <figure class="pge-zz-media">
+    <img src="/home/pet-groups/fish-aquatic.webp" width="1200" height="675" loading="lazy" alt="Colorful freshwater fish swimming in a planted aquarium.">
+  </figure>
+  <div class="pge-zz-copy">
+    <h3>Fish & Aquatic</h3>
+    <ul class="pge-zz-list">
+      <li><strong>Crystal-Clear Aquariums:</strong> showcase vibrant fish and aquatic plants</li>
+      <li><strong>Filter & Media Systems:</strong> keep water clean and balanced with minimal effort</li>
+      <li><strong>Heater & Thermometer Sets:</strong> maintain stable temperatures for tropical species</li>
+      <li><strong>Water Conditioners & Test Kits:</strong> ensure safe, healthy environments year-round</li>
+    </ul>
+  </div>
+</article>
+
+<style>
+/* Pet Gear Essentials — Mini Zig-Zag */
+.pge-zz { margin: 2rem 0; }
+.pge-zz > h2 { text-align: center; margin: 0 0 1.25rem; }
+.pge-zz-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  align-items: center; padding: 24px 0;
+  border-top: 1px solid rgba(0,0,0,.06);
+}
+.pge-zz-row:first-of-type { border-top: 0; }
+.pge-zz-row.flip .pge-zz-media { order: 2; }
+.pge-zz-media img { width: 100%; height: auto; border-radius: 12px; display: block; }
+.pge-zz-copy h3 { margin: 0 0 .5rem; }
+.pge-zz-list { margin: 0; padding-left: 1.1em; }
+.pge-zz-list li { margin: .25rem 0; line-height: 1.4; }
+@media (max-width: 900px) {
+  .pge-zz-row { grid-template-columns: 1fr; }
+  .pge-zz-row.flip .pge-zz-media { order: 0; }
+}
+</style>
+
+
+<hr>
 <h2 id="why-choose-pge">Why Choose Pet Gear Essentials?</h2>
 <ul>
   <li><strong>Outcome first:</strong> We focus on fit, comfort, durability, and cleaning because those are the things you feel every day. This helps you avoid products that seem fine on paper but create frustration in daily use. The goal is consistent results that make care easier and safer for you and your pet.</li>
+<br>
   <li><strong>Clear comparisons:</strong> Each category uses the same core checks so differences stand out and decisions take minutes. Criteria like measurements, materials, and maintenance steps appear in the same order and the same wording. You can move from one page to the next without relearning the layout.</li>
+  <br>
   <li><strong>Evergreen guidance:</strong> We avoid price chasing and star counts and keep attention on features that hold up over time. Fit, build quality, and upkeep habits remain useful next month and next season. This makes the page a reference you can return to when you upgrade or expand your setup.</li>
 </ul>
-
+<br>
 <h2 id="how-we-evaluate">How we evaluate products</h2>
 <ul>
   <li><strong>Define the job:</strong> what the product must do in real life at home or on the go, including fit, access, and storage.</li>
