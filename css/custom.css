@@ -1,0 +1,246 @@
+/* ===============================
+   Smart Gear Advisor — custom.css
+   Safe, theme-agnostic overrides
+   =============================== */
+
+/* ---- CSS variables for easy theming ---- */
+:root{
+  --bg: #e9f0f6;                  /* light gray-blue page background */
+  --paper: #f6f9fc;               /* “card” / paper color (also header) */
+  --ink: #0f172a;                 /* near-black text */
+  --muted: #475569;               /* secondary text */
+  --accent: #2563eb;              /* blue accent */
+  --accent-2: #14b8a6;            /* teal accent */
+  --ring: rgba(37, 99, 235, .25);
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(15,23,42,.08);
+  --maxw: 980px;                  /* ~30% wider than many blog defaults */
+}
+
+/* ---- Global reset-ish tweaks ---- */
+html{ scroll-behavior:smooth; }
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "liga","kern";
+}
+
+/* ---- Site header / hero fixes ---- */
+/* Many Hugo themes (incl. Ananke) use a huge hero. We force sane heights. */
+.site-header,
+header.site-header,
+.hero,
+.hero .cover,
+header[role="banner"],
+header .cover {
+  background: var(--paper) !important;   /* match “paper” per request */
+  color: var(--ink) !important;
+  min-height: 160px !important;          /* shrink enormous banner */
+  padding: 32px 0 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow: none !important;
+}
+
+/* Hero title sizing (fluid but capped) */
+.hero h1, header h1, .cover .f1, .cover h1 {
+  font-size: clamp(28px, 5vw, 56px) !important;
+  line-height: 1.15 !important;
+  margin: 0 !important;
+  opacity: .9;
+}
+
+/* Remove giant empty space some themes insert below the hero */
+.hero + .content,
+header + .content,
+.cover + .content {
+  margin-top: 24px !important;
+}
+
+/* ---- Main container (“paper”) ---- */
+.main, .content, .post, .post-content, .mw7, .mw8, .mw9 {
+  /* Keep whatever the theme uses but cap to our custom width */
+  max-width: var(--maxw) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.paper, .page, .post, .home-intro, .article,
+.section, .entry, .content .wrap, .ananke-socials + .content {
+  background: linear-gradient(180deg, var(--paper), #f2f7fb);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: clamp(18px, 3vw, 36px);
+}
+
+/* ---- Center text for page bodies, but DO NOT touch tables/cards ---- */
+.post-content, .content .page-content, .entry-content, .home-intro, .section .copy {
+  text-align: center;
+}
+
+/* Keep technical blocks left-aligned for readability */
+.post-content table,
+.post-content pre,
+.post-content code,
+.post-content .table,
+.content table,
+.content .table,
+.entry-content table {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;               /* keep cell content left */
+}
+
+/* Headings get subtle underlines using accents */
+.post-content h2, .post-content h3,
+.content h2, .content h3 {
+  display:inline-block;
+  position:relative;
+  padding-bottom: .25rem;
+  margin-top: 1.25rem;
+  margin-bottom: .75rem;
+}
+.post-content h2::after, .content h2::after {
+  content:"";
+  position:absolute; left:0; right:0; bottom:-6px;
+  height:3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 2px;
+  margin: 0 auto;
+  width: 56%;
+}
+.post-content h3::after, .content h3::after {
+  content:"";
+  position:absolute; left:0; right:0; bottom:-6px;
+  height:2px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  border-radius: 2px;
+  width: 42%;
+  margin:0 auto;
+}
+
+/* Paragraphs + lists look balanced when centered */
+.post-content p,
+.post-content ul,
+.post-content ol,
+.content p,
+.content ul,
+.content ol{
+  margin-left:auto; margin-right:auto;
+  max-width: 70ch;                /* keep readable line length */
+  color: var(--muted);
+}
+
+/* ---- Roundup tables (your comparison table) ---- */
+.post-content table, .content table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.post-content thead th, .content thead th {
+  background: #f0f6ff;
+  font-weight: 700;
+  padding: 14px 16px;
+}
+.post-content tbody td, .content tbody td {
+  padding: 14px 16px;
+  vertical-align: middle;
+  border-top: 1px solid #e6eef7;
+}
+
+/* Keep first column wider for product titles */
+.post-content table td:first-child,
+.content table td:first-child{ width: 58%; }
+
+/* ---- Buttons (Buy Now → View Here via CSS only) ---- */
+/* This keeps semantics/accessibility while changing the visible label. */
+a.button, a.btn, .button, .btn, .cta, .buy-btn, .link-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.06);
+  background: #e8f0ff;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.04), 0 6px 20px var(--ring);
+  font-weight: 800;
+  text-decoration:none !important;
+  transition: transform .08s ease, box-shadow .2s ease;
+  min-width: 132px;
+}
+a.button:hover, a.btn:hover, .button:hover, .btn:hover, .cta:hover, .buy-btn:hover, .link-btn:hover{
+  transform: translateY(-1px);
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.05), 0 10px 26px var(--ring);
+}
+
+/* If the anchor's original text is “Buy Now”, hide it visually and replace */
+a.button, a.btn, .button, .btn, .cta, .buy-btn, .link-btn{
+  position:relative;
+  color:#0b1a3a;
+}
+
+/* Hide inner text but keep it for screen readers/SEO */
+a.button span.label,
+a.btn span.label,
+.button span.label,
+.btn span.label { 
+  position: absolute !important;
+  clip: rect(1px,1px,1px,1px);
+  padding:0; border:0; height:1px; width:1px; overflow:hidden;
+}
+
+/* Generic replacement: always show “View Here” regardless of original label.
+   If you ONLY want to replace when it equals “Buy Now”, add a class in HTML,
+   or restrict with a parent selector specific to roundup tables. */
+a.button::after, a.btn::after, .button::after, .btn::after, .cta::after, .buy-btn::after, .link-btn::after{
+  content: "View Here";
+}
+
+/* If your theme renders buttons as plain anchors inside the Link column
+   without .btn classes, target the table’s last column anchors too: */
+.post-content table td:last-child a,
+.content table td:last-child a {
+  /* inherit the same button styling */
+  display:inline-flex; align-items:center; justify-content:center;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.06);
+  background: #e8f0ff;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,.04), 0 6px 20px var(--ring);
+  font-weight: 800;
+  text-decoration:none !important;
+  min-width: 132px;
+  color:#0b1a3a;
+  position:relative;
+}
+.post-content table td:last-child a > * { 
+  position: absolute !important;
+  clip: rect(1px,1px,1px,1px);
+  padding:0; border:0; height:1px; width:1px; overflow:hidden;
+}
+.post-content table td:last-child a::after { content:"View Here"; }
+
+/* ---- Utility: center tiny “read more” chips & disclaimers ---- */
+.post-content .more-link, .read-more, .disclaimer {
+  text-align:center; display:block; margin: 16px auto;
+  color: var(--muted);
+}
+
+/* ---- Images scale nicely in centered layout ---- */
+.post-content img, .content img {
+  display:block; margin: 12px auto; border-radius: 12px; max-width:100%; height:auto;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+/* ---- Small screens: trim paddings and table behavior ---- */
+@media (max-width: 720px){
+  :root { --maxw: 100%; }
+  .paper, .page, .post, .home-intro, .article,
+  .section, .entry, .content .wrap {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  .post-content table, .content table { display:block; overflow-x:auto; }
+}
