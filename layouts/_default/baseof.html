@@ -31,10 +31,19 @@
     {{ $custom := resources.Get "css/custom.css" | resources.Minify | resources.Fingerprint }}
     <link rel="stylesheet" href="{{ $custom.RelPermalink }}">
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8uXMBMLNBZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-8uXMBMLNBZ');
+    </script>
+
     <!-- Hook for page-specific head content -->
     {{ block "head" . }}{{ end }}
   </head>
-  <body>
+  <body{{ if .IsHome }} class="home"{{ end }}>
     <!-- Header -->
     <header class="site-header">
       <div class="brand-block">
@@ -55,7 +64,6 @@
     <main class="paper">
       {{ block "main" . }}{{ end }}
     </main>
-<body {{ if .IsHome }}class="home"{{ end }}>
 
     <!-- Footer -->
     <footer class="site-footer">
